@@ -1,0 +1,33 @@
+Simple prometheus port scan discoverer
+
+This simple package will scan one or more IPv4 subnets for prometheus
+exporters and generate a service discovery file suitable to be included
+in a file_sd_config section.
+
+INSTALLATION
+
+We are using Perl Carton
+(https://metacpan.org/pod/distribution/Carton/script/carton) as the
+module dependency manager. See the link for installation instructions
+for Carton. Most modern OSes can get Carton as a prebuilt package. E.g.
+in FreeBSD one can install it with "pkg install p5-carton". After
+installing Carton, go to the source directory of this package and run
+"carton". That's all there is to it. Carton will read cpanfile and
+install dependencies into a local/ directory.
+
+USAGE
+
+To discover all prometheus targets in a subnet, use something like:
+
+./scan -f previous-sd-file.yaml 10.11.12.13/16 10.14.15.16/16. The
+scanner will try to connect to Prometheus well known exporter numbers
+and detect if anybody is listening. The scanner will also look for
+targets mentioned in previous-sd-file.yaml and any of them not present
+in the detected ones will be also included. So, if one has manually
+entered a couple of targets in the previous file, those targets can be
+preerved. The scanner will output a YAML structure in STDOUT, redirect
+as necessary. Be careful not to clobber the previous file, use an
+intermediary if replacing the same file!
+
+Athanasios Douitsis, 2017
+
