@@ -11,6 +11,8 @@ use IPv6::Address;
 use IO::Socket::INET;
 use Socket;
 use YAML;
+use Term::ReadKey;
+use Term::ReadLine;
 use Term::ANSIColor qw(:constants);
 local $Term::ANSIColor::AUTORESET = 1;
 
@@ -18,6 +20,7 @@ GetOptions(
 	'd'		=> \(my $DEBUG),
 	'timeout|t'	=> \(my $timeout = 0.2),
 	'f|file=s@'	=> \(my $files),
+	'replace=s'	=> \(my $replace),
 );
 
 my @known_targets = ();
@@ -91,6 +94,21 @@ for my $k (keys $known->%*) {
 	}
 }
 
-print YAML::Dump( $result )
 
+print YAML::Dump( $result );
 
+if( defined( $replace ) ) {
+	if( -t STDIN ) {
+		my $term = Term::ReadLine->new('confirmation prompt');
+		chomp( my $yes = $term->readline("Type 'yes' if it is okay to overwrite file $replace: ") );
+		if( $yes =~ /^(yes|y)$/i ) {
+			YAML::DumpFile( $replace , $result )
+		}
+		else {
+			say STDERR 'No file harmed'
+		}
+	}
+	else {
+		say STDERR "STDIN is not a tty, cannot overwrite $replace unless I am running interactively"
+	}
+}
